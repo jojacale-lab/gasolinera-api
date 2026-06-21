@@ -1,4 +1,6 @@
 require('dotenv').config();
+console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
+console.log('SUPABASE_KEY:', process.env.SUPABASE_KEY?.substring(0, 20));
 const express  = require('express');
 const cors     = require('cors');
 const { createClient } = require('@supabase/supabase-js');
