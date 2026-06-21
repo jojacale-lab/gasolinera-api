@@ -5,12 +5,10 @@ const express  = require('express');
 const cors     = require('cors');
 const { createClient } = require('@supabase/supabase-js');
 
-const app      = express();
 const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY
+  process.env.SUPABASE_URL || 'https://lpwcekubcdwjbtxksxxa.supabase.co',
+  process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxwd2Nla3ViY2R3amJ0eGtzeHhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NDYxODAsImV4cCI6MjA5NzUyMjE4MH0.8Kyhyp4gjA_wTlmDpRrMv3qp6UxjTDqtaQ95lkcR1wc'
 );
-
 app.use(cors());
 app.use(express.json());
 
