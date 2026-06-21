@@ -66,7 +66,46 @@ app.get('/api/prices/history/:stationId', async (req, res) => {
   if (error) return res.status(500).json({ error: error.message });
   res.json({ history: data });
 });
+// GET /api/admin/stats
+app.get('/api/admin/stats', async (req, res) => {
+  const [estaciones, reportes] = await Promise.all([
+    supabase.from('estaciones').select('id', { count: 'exact' }),
+    supabase.from('reportes').select('id', { count: 'exact' }).eq('aprobado', false)
+  ]);
+  res.json({
+    totalEstaciones:    estaciones.count,
+    reportesPendientes: reportes.count,
+    ultimaActualizacion: new Date().toLocaleDateString('es-CO', { month: 'short', year: 'numeric' }),
+  });
+});
 
+// POST /api/admin/update-prices
+app.post('/api/admin/update-prices', async (req, res) => {
+  const { precios } = req.body;
+  let updated = 0;
+
+  for (const [tipo, precio] of Object.entries(precios)) {
+    const { data: estaciones } = await supabase
+      .from('estaciones')
+      .select('id')
+      .eq('activa', true);
+
+    if (estaciones) {
+      for (const est of estaciones) {
+        await supabase.from('precios').insert({
+          estacion_id:      est.id,
+          tipo_combustible: tipo,
+          precio_galon:     parseFloat(precio),
+          fuente:           'sicom',
+          verificado:       true,
+        });
+        updated++;
+      }
+    }
+  }
+
+  res.json({ updated, mensaje: 'Precios actualizados correctamente' });
+});
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ API de Gasolinera corriendo en http://localhost:${PORT}`);
